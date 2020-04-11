@@ -1,0 +1,78 @@
+import hypermedia.net.*;
+import java.util.Map;
+import java.util.Set;
+String serverIp = "localhost";
+Do myDo;
+ArrayList<Do> Dos = new ArrayList<Do>();
+JSONObject incomingDataObject;
+float mousex=0,mousey=0;
+float mousex_=0,mousey_=0;
+
+
+UDP sender;
+
+class Do {
+  int x, y, pColor;
+  
+  Do(int pColor_, int x_, int y_) {
+    pColor = pColor_;
+    x=x_;
+    y=y_;
+  }
+JSONObject toJSON() {
+    JSONObject data=new JSONObject();
+    data.setInt("x", x);
+    data.setInt("y", y);
+    return data;
+  }
+  
+ void display(){
+   fill(pColor);
+   rect(x,y,50,50,5);
+ }
+}
+void setup(){
+  size(1000,1000);
+  background(255);
+  sender= new UDP( this, 25565 );
+  //sender.send(data,serverIp,25566);
+  
+
+}
+void receive( byte[] data, String ip, int port) {
+  if(ip == serverIp){
+  String incomingData = new String (data);
+  incomingDataObject = parseJSONObject(incomingData);
+  Dos.add(new Do(incomingDataObject.getInt("color"),incomingDataObject.getInt("X"),incomingDataObject.getInt("Y")));
+}
+  
+
+
+}
+void draw(){
+  background(255);
+  for (int i = 0; i < Dos.size(); i++) {
+    Do part = Dos.get(i);
+    part.display();}
+    //rectMode(CENTER);
+    
+  palya();
+}
+void mouseDragged(){
+  mousex = mouseX-mousex_;
+  mousey = mouseY-mousey_;
+}
+void mousePressed(){
+  mousex_ = mouseX-mousex;
+  mousey_ = mouseY-mousey;
+  println("------------------------");
+  println(mousex/25+" || "+mousey/25);
+  println((mouseX-mousex)/25+" || "+(mouseY-mousey)/25);
+  println("------------------------");
+}
+void palya(){
+  for (int i=-5; i<45; i++) for(int j=-5; j<45; j++){
+    rect(i*25+mousex%25,j*25+mousey%25,25,25);
+    rect(mousex,mousey,25,25,10);
+  }
+}
